@@ -1,0 +1,15 @@
+# Stage 1: Build the Go application
+FROM golang:latest AS builder
+WORKDIR /src
+COPY . .
+RUN go mod download
+RUN go build -o /app
+
+FROM nginx:latest
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app /usr/local/bin/vscs/app
+ARG DOTENV_LOCATION
+ENV DOTENV_LOCATION=${DOTENV_LOCATION}
+COPY --from=builder /src/.env ${DOTENV_LOCATION}
+EXPOSE 80
+CMD ["/bin/sh", "-c", "nginx & /usr/local/bin/vscs/app"]

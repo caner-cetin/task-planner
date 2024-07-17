@@ -1,0 +1,32 @@
+version: "3"
+services:
+  web:
+    container_name: web
+    build:
+      dockerfile: Dockerfile.prod
+      context: ./
+      args:
+        - DOTENV_LOCATION=${DOTENV_LOCATION}
+    depends_on:
+      - mysql
+    ports:
+      - 1323:80
+    networks:
+      - go-mysql-bridge
+  mysql:
+    container_name: mysql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    networks:
+      - go-mysql-bridge
+    ports:
+      - "3306:3306"
+
+networks:
+  go-mysql-bridge:
+    driver: bridge
